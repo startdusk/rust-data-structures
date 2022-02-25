@@ -49,6 +49,7 @@ pub fn fibonacci_dynamic(n: i32) -> (i32, i32) {
 // 尾递归是一种在函数的最后执行递归调用语句的特殊形式的递归
 // 尾递归就是从最后开始计算, 每递归一次就算出相应的结果, 也就是说, 函数调用出现在调用者函数的尾部, 因为是尾部, 所以根本没有必要去保存任何局部变量。
 // 直接让被调用的函数返回时越过调用者,返回到调用者的调用者去。
+// 初始值 prev = 1, res = 1
 pub fn fibonacci_dynamic_tail_recursice(n: i32, prev: i32, res: i32) -> i32 {
     if n == 0 {
         return prev;
