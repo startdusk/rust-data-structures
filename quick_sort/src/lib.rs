@@ -36,6 +36,7 @@ pub fn quick_sort<T: PartialOrd + Debug>(v: &mut [T]) {
 }
 
 // T: 'static 只能是静态类型(静态类型只是一种类型)
+// 实现了Send trait 才能在线程间发送
 pub fn threaded_quicksort_safe<T: PartialOrd + Debug + Send>(v: &mut [T]) {
     if v.len() <= 1 {
         return;
@@ -53,6 +54,21 @@ pub fn threaded_quicksort_safe<T: PartialOrd + Debug + Send>(v: &mut [T]) {
         threaded_quicksort_safe(&mut b[1..]);
     })
     .unwrap(); // thread is also implicitly joined here
+}
+
+pub fn quick_sort_rayon<T: PartialOrd + Debug + Send>(v: &mut [T]) {
+    if v.len() <= 1 {
+        return;
+    }
+
+    let p = pivot(v);
+    println!("{:?}", v);
+
+    let (a, b) = v.split_at_mut(p);
+    // put f2 on queue then start f1;
+    // if another thread is ready it will steal f2
+    // this works recursively down the stack
+    rayon::join(|| quick_sort_rayon(a), || quick_sort_rayon(&mut b[1..]));
 }
 
 #[cfg(test)]
@@ -78,10 +94,22 @@ mod tests {
         quick_sort(&mut v);
         assert_eq!(v, vec![1, 2, 6, 7, 9, 12, 13, 14]);
     }
+
     #[test]
     fn test_quick_sort_threaded() {
         let mut v = vec![4, 6, 1, 8, 11, 13, 3];
         threaded_quicksort_safe(&mut v);
         assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
+    }
+
+    #[test]
+    fn test_quick_sort_rayon() {
+        let mut v = vec![4, 6, 1, 8, 11, 13, 3];
+        quick_sort_rayon(&mut v);
+        assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
+
+        let mut v = vec![1, 2, 6, 7, 9, 12, 13, 14];
+        quick_sort_rayon(&mut v);
+        assert_eq!(v, vec![1, 2, 6, 7, 9, 12, 13, 14]);
     }
 }
