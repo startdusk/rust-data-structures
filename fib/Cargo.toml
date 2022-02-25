@@ -1,11 +1,8 @@
 [package]
-name = "rust-data-structures"
+name = "fib"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[workspace]
-members = ["bubble_sort", "merge_sort", "quick_sort", "fib"]
 
 [dependencies]
