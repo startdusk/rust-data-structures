@@ -12,3 +12,4 @@
 
 - [fibonacci](./fib/)
 - [linkedlist](./linkedlist/)
+- [doubly_linkedlist](./doubly_linkedlist/)
