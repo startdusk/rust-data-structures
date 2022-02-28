@@ -52,7 +52,7 @@ impl<T: PartialOrd> LinkedList<T> {
                 if data.gt(node) {
                     child.sorted_insert(data);
                 } else if data.eq(node) {
-                    // not todo
+                    // not to do
                 } else {
                     self.push_front(data);
                 }
