@@ -77,6 +77,9 @@ impl<T> DoublyLinkedList<T> {
             }
         }
     }
+
+    // pub fn pop_front
+    // pub fn pop_back
 }
 
 fn main() {
