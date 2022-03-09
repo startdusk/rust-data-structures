@@ -75,13 +75,25 @@ impl<T> BinaryBalanceTree<T> {
 
 impl<T: PartialOrd> BinaryBalanceTree<T> {
     pub fn add_sorted(&mut self, data: T) {
-        match self.0 {
-            Some(ref mut db) => {
-                if data < db.data {
-                    db.left.add_sorted(data);
+        let rot_dir = match self.0 {
+            Some(ref mut bd) => {
+                let res: i32;
+                if data < bd.data {
+                    bd.left.add_sorted(data);
+                    if bd.left.height() - bd.right.height() > 1 {
+                        res = 1
+                    } else {
+                        res = 0
+                    };
                 } else {
-                    db.right.add_sorted(data);
+                    bd.right.add_sorted(data);
+                    if bd.right.height() - bd.left.height() > 1 {
+                        res = -1
+                    } else {
+                        res = 0
+                    };
                 }
+                res
             }
             None => {
                 self.0 = Some(Box::new(BinaryData {
@@ -89,10 +101,17 @@ impl<T: PartialOrd> BinaryBalanceTree<T> {
                     h: 0, // 创建一颗新的树，显然它的树高为0
                     left: BinaryBalanceTree::new(),
                     right: BinaryBalanceTree::new(),
-                }))
+                }));
+                0
             }
+        };
+
+        // 添加左旋右旋后，树会非常对称(非常平衡)
+        match rot_dir {
+            1 => self.rot_right(),
+            -1 => self.rot_left(),
+            _ => self.set_height(),
         }
-        self.set_height();
     }
 }
 
@@ -121,10 +140,8 @@ fn main() {
     t.add_sorted(94);
     t.add_sorted(54);
     t.add_sorted(3);
+    for i in 0..100000 {
+        t.add_sorted(i);
+    }
     t.print_lfirst(0);
-
-    println!("----------------------------");
-    // 左旋后会发现树比以前要更对称(更平衡)
-    t.rot_left();
-    t.print_lfirst(0)
 }
