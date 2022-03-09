@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = ["bubble_sort", "merge_sort", "quick_sort", "fib", "linkedlist", "doubly_linkedlist", "binary_tree"]
+members = ["bubble_sort", "merge_sort", "quick_sort", "fib", "linkedlist", "doubly_linkedlist", "binary_tree", "binary_balance_tree"]
 
 
 [dependencies]
