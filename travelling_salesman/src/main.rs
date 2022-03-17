@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::fmt;
+use std::fmt::{self, Debug};
 use std::hash::Hash;
 use std::rc::Rc;
 
@@ -49,14 +49,22 @@ impl<ID: fmt::Debug> fmt::Display for Route<ID> {
     }
 }
 
-impl<T, E: Weighted, ID: Clone + Hash + Eq> Graph<T, E, ID> {
+impl<T, E: Weighted, ID: Clone + Hash + Eq + Debug> Graph<T, E, ID> {
     pub fn shortest_path(&self, from: ID, to: ID) -> Option<Rc<Route<ID>>> {
+        self.shortest_path_r(Route::start_rc(from), to)
+    }
+    pub fn shortest_path_r(&self, from: Rc<Route<ID>>, to: ID) -> Option<Rc<Route<ID>>> {
+        let mut toset = HashSet::new();
+        toset.insert(to);
+        self.closest(from, &toset)
+    }
+    pub fn closest(&self, from: Rc<Route<ID>>, to: &HashSet<ID>) -> Option<Rc<Route<ID>>> {
         let mut visited = HashSet::new();
         let mut routes = Vec::new();
-        routes.push(Route::start_rc(from));
+        routes.push(from);
         loop {
             let c_route = routes.pop()?;
-            if to == c_route.pos {
+            if to.contains(&c_route.pos) {
                 return Some(c_route);
             }
             if visited.contains(&c_route.pos) {
@@ -89,18 +97,29 @@ impl<T, E: Weighted, ID: Clone + Hash + Eq> Graph<T, E, ID> {
                 loop {
                     if routes[iafter].len > nlen {
                         // lowest element last
-                        routes.insert(iafter + 1, nroute.clone());
+                        routes.insert(iafter + 1, nroute);
                         break;
                     }
                     if iafter == 0 {
                         // reached end
-                        routes.insert(0, nroute.clone());
+                        routes.insert(0, nroute);
                         break;
                     }
                     iafter -= 1;
                 }
             }
         }
+    }
+    // greedy 贪心算法
+    pub fn greedy_salesman(&self, start: ID) -> Option<Rc<Route<ID>>> {
+        let mut to_visit: HashSet<ID> = self.data.keys().map(|k| k.clone()).collect();
+        to_visit.remove(&start);
+        let mut route = Route::start_rc(start.clone());
+        while to_visit.len() > 0 {
+            route = self.closest(route, &to_visit)?;
+            to_visit.remove(&route.pos);
+        }
+        self.shortest_path_r(route, start) // returns option like saleman
     }
 }
 
@@ -122,40 +141,6 @@ type Rcc<T> = Rc<RefCell<T>>;
 pub fn rcc<T>(t: T) -> Rcc<T> {
     Rc::new(RefCell::new(t))
 }
-
-// 实现graph有多种结构方式如下:
-// // edgelist
-// pub struct EdgeListGraph<E, ID> {
-//     // Data on the edges at E don't care too much about the nodes.
-//     // simple, but can be slow at traversal
-//     v: Vec<(E, ID, ID)>,
-// }
-
-// // Pointer based
-// // good for directed graphs as edges go one way,
-// // Using Weak pointer means the edge will fail safely if node has been removed
-// // can stick Edge data if needed
-// pub struct RccGraph<T, E> {
-//     nodes: Vec<Rcc<RccNode<T, E>>>,
-// }
-
-// pub struct RccNode<T, E> {
-//     data: T,
-//     edges: Vec<(E, Weak<RefCell<RccNode<T, E>>>)>,
-// }
-
-// // Map based
-// // Maps point from key to value normally quickly eg HashMap
-// pub struct MapGraph<T, E, ID: Hash> {
-//     mp: HashMap<ID, T>,
-//     edges: Vec<(E, ID, ID)>,
-// }
-
-// // Mappointer based
-// pub struct MapPGraph<T, E, ID: Hash + Eq> {
-//     data: HashMap<ID, (T, Vec<ID>)>,
-//     edges: HashMap<ID, (E, ID, ID)>,
-// }
 
 // Mappointer based
 #[derive(Debug)]
@@ -220,6 +205,7 @@ fn main() -> Result<(), GraphErr> {
 
     println!("shortest path A-D = {}", g.shortest_path('A', 'D').unwrap());
     println!("shortest path H-B = {}", g.shortest_path('H', 'B').unwrap());
+    println!("greedy_salesman A = {}", g.greedy_salesman('A').unwrap());
 
     Ok(())
 }

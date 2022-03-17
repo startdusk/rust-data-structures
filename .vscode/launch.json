@@ -1,0 +1,449 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Cargo launch",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--lib"
+                ]
+            },
+            "program": "${cargo:program}",
+            "args": []
+        },
+
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'bubble_sort'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=bubble_sort"
+                ],
+                "filter": {
+                    "name": "bubble_sort",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'merge_sort'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=merge_sort"
+                ],
+                "filter": {
+                    "name": "merge_sort",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'quick_sort'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=quick_sort"
+                ],
+                "filter": {
+                    "name": "quick_sort",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'fib'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=fib",
+                    "--package=fib"
+                ],
+                "filter": {
+                    "name": "fib",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'fib'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=fib",
+                    "--package=fib"
+                ],
+                "filter": {
+                    "name": "fib",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'linkedlist'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=linkedlist",
+                    "--package=linkedlist"
+                ],
+                "filter": {
+                    "name": "linkedlist",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'linkedlist'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=linkedlist",
+                    "--package=linkedlist"
+                ],
+                "filter": {
+                    "name": "linkedlist",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'doubly_linkedlist'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=doubly_linkedlist",
+                    "--package=doubly_linkedlist"
+                ],
+                "filter": {
+                    "name": "doubly_linkedlist",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'doubly_linkedlist'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=doubly_linkedlist",
+                    "--package=doubly_linkedlist"
+                ],
+                "filter": {
+                    "name": "doubly_linkedlist",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'binary_tree'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=binary_tree",
+                    "--package=binary_tree"
+                ],
+                "filter": {
+                    "name": "binary_tree",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'binary_tree'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=binary_tree",
+                    "--package=binary_tree"
+                ],
+                "filter": {
+                    "name": "binary_tree",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'binary_balance_tree'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=binary_balance_tree",
+                    "--package=binary_balance_tree"
+                ],
+                "filter": {
+                    "name": "binary_balance_tree",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'binary_balance_tree'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=binary_balance_tree",
+                    "--package=binary_balance_tree"
+                ],
+                "filter": {
+                    "name": "binary_balance_tree",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'skip_list'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=skip_list",
+                    "--package=skip_list"
+                ],
+                "filter": {
+                    "name": "skip_list",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'skip_list'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=skip_list",
+                    "--package=skip_list"
+                ],
+                "filter": {
+                    "name": "skip_list",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'huffman_tree'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=huffman_tree",
+                    "--package=huffman_tree"
+                ],
+                "filter": {
+                    "name": "huffman_tree",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'huffman_tree'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=huffman_tree",
+                    "--package=huffman_tree"
+                ],
+                "filter": {
+                    "name": "huffman_tree",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'graph'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=graph",
+                    "--package=graph"
+                ],
+                "filter": {
+                    "name": "graph",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'graph'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=graph",
+                    "--package=graph"
+                ],
+                "filter": {
+                    "name": "graph",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'travelling_salesman'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=travelling_salesman",
+                    "--package=travelling_salesman"
+                ],
+                "filter": {
+                    "name": "travelling_salesman",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'travelling_salesman'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=travelling_salesman",
+                    "--package=travelling_salesman"
+                ],
+                "filter": {
+                    "name": "travelling_salesman",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'rust-data-structures'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=rust-data-structures",
+                    "--package=rust-data-structures"
+                ],
+                "filter": {
+                    "name": "rust-data-structures",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'rust-data-structures'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=rust-data-structures",
+                    "--package=rust-data-structures"
+                ],
+                "filter": {
+                    "name": "rust-data-structures",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
