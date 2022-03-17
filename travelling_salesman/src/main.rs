@@ -4,6 +4,8 @@ use std::fmt::{self, Debug};
 use std::hash::Hash;
 use std::rc::Rc;
 
+use rand::prelude::SliceRandom;
+
 #[derive(Debug)]
 #[warn(dead_code)]
 pub struct GraphErr {
@@ -121,6 +123,55 @@ impl<T, E: Weighted, ID: Clone + Hash + Eq + Debug> Graph<T, E, ID> {
         }
         self.shortest_path_r(route, start) // returns option like saleman
     }
+
+    pub fn complete_path(&self, path: &[ID]) -> Option<Rc<Route<ID>>> {
+        if path.len() < 2 {
+            return None;
+        }
+
+        let mut route = Route::start_rc(path[0].clone());
+        for pos in &path[1..path.len() - 1] {
+            if !route.contains(pos) {
+                route = self.shortest_path_r(route, pos.clone())?;
+            }
+        }
+        self.shortest_path_r(route, path[path.len() - 1].clone())
+    }
+}
+
+impl<T, E: Weighted, ID: Clone + Hash + Eq + Debug> Graph<T, E, ID> {
+    pub fn iter_salesman(&self, start: ID) -> Option<Rc<Route<ID>>> {
+        let mut bpath: Vec<ID> = self.data.keys().map(|k| k.clone()).collect();
+        bpath.shuffle(&mut rand::thread_rng());
+        // move start to front
+        for n in 0..bpath.len() {
+            if bpath[n] == start {
+                bpath.swap(0, n);
+                break;
+            };
+        }
+        bpath.push(start); // start and finish
+
+        let mut broute = self.complete_path(&bpath)?;
+        let mut no_imp = 0;
+        loop {
+            let mut p2 = bpath.clone();
+            let sa = (rand::random::<usize>() % (p2.len() - 2)) + 1; // not the ends
+            let sb = (rand::random::<usize>() % (p2.len() - 2)) + 1; // not the ends
+            p2.swap(sa, sb);
+            let r2 = self.complete_path(&p2)?;
+            if r2.len < broute.len {
+                println!("Improvement on {} = \n{}", broute, r2);
+                bpath = p2;
+                broute = r2;
+                no_imp = 0;
+            }
+            no_imp += 1;
+            if no_imp >= 50 {
+                return Some(broute);
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -206,6 +257,7 @@ fn main() -> Result<(), GraphErr> {
     println!("shortest path A-D = {}", g.shortest_path('A', 'D').unwrap());
     println!("shortest path H-B = {}", g.shortest_path('H', 'B').unwrap());
     println!("greedy_salesman A = {}", g.greedy_salesman('A').unwrap());
+    println!("iter_salesman A = {}", g.iter_salesman('A').unwrap());
 
     Ok(())
 }
