@@ -139,7 +139,7 @@ impl<K: Hash + Eq, V> HMap<K, V> {
 
     pub fn move_bucket(&mut self) {
         if self.n_moved == 0 {
-            self.grow.set_buckets(self.main.buckets.len() * 2);
+            self.grow.set_buckets(self.main.buckets.len() * 2); // 数据过多 直接增长两倍的体积，然后搬运数据过去
         }
         if let Some(b) = self.main.bucket(self.n_moved) {
             for (k, v) in b {
