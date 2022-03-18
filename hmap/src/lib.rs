@@ -1,10 +1,7 @@
 mod hasher;
 
 use hasher::hash;
-use std::{
-    borrow::{Borrow, BorrowMut},
-    hash::Hash,
-};
+use std::{borrow::Borrow, hash::Hash};
 
 const BSIZE: usize = 8;
 const BGROW: usize = 8;
@@ -142,7 +139,7 @@ impl<K: Hash + Eq, V> HMap<K, V> {
 
     pub fn move_bucket(&mut self) {
         if self.n_moved == 0 {
-            self.grow.set_buckets(self.main.buckets.len() + BGROW);
+            self.grow.set_buckets(self.main.buckets.len() * 2);
         }
         if let Some(b) = self.main.bucket(self.n_moved) {
             for (k, v) in b {
@@ -160,9 +157,55 @@ impl<K: Hash + Eq, V> HMap<K, V> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn test_get_right_values() {
+        let cases: Vec<(String, i32)> = vec![
+            ("james".to_string(), 18),
+            ("dave".to_string(), 45),
+            ("andy".to_string(), 23),
+            ("pete".to_string(), 14),
+            ("steve".to_string(), 90),
+            ("jane".to_string(), 105),
+            ("grader".to_string(), 23),
+            ("irene".to_string(), 65),
+            ("sam".to_string(), 66),
+            ("andrex".to_string(), 77),
+            ("andrew".to_string(), 89),
+            ("geralt".to_string(), 99),
+        ];
+        let mut hm = HMap::new();
+        for c in &cases {
+            let c = c.clone();
+            hm.insert(c.0, c.1);
+        }
+
+        for c in cases {
+            assert_eq!(hm.get(&c.0), Some(&c.1));
+        }
+
+        // 常用做法，查看数据内容
+        // println!("hm = {:?}", hm);
+        // panic!()
+    }
+
+    #[test]
+    fn test_lots_of_numbers() {
+        let mut hm = HMap::new();
+        for x in 0..10000 {
+            // 每个值 + 250
+            hm.insert(x, x + 250);
+        }
+        assert_eq!(hm.len(), 10000);
+        assert_eq!(hm.get(&500), Some(&750));
+
+        for (n, x) in hm.main.buckets.iter().enumerate() {
+            let msg = format!("main bucket too big {}:{}", n, x.len());
+            assert!(x.len() < 12, "{}", msg);
+        }
+        for (n, x) in hm.grow.buckets.iter().enumerate() {
+            let msg = format!("grow bucket too big {}:{}", n, x.len());
+            assert!(x.len() < 12, "{}", msg);
+        }
     }
 }
