@@ -1,56 +1,77 @@
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub struct GenData {
-    pos: usize,
-    gen: u64,
+use crate::gen::GenData;
+
+// This could be implemented by Vec type object,
+// or tree or hashmap, depending onhow full you
+// expect it to be
+pub trait EcsStore<T> {
+    fn add(&mut self, f: GenData, t: T);
+    fn get(&self, g: GenData) -> Option<&T>;
+    fn get_mut(&mut self, g: GenData) -> Option<&mut T>;
+    fn drop(&mut self, g: GenData);
+    // Optional but helpful could be another trait even
+    //
+    fn for_each<F: FnMut(GenData, &T)>(&self, f: &mut F);
+    fn for_each_mut<F: FnMut(GenData, &mut T)>(&mut self, f: &mut F);
 }
 
-pub struct EntityActive {
-    active: bool,
-    gen: u64,
+pub struct VecStore<T> {
+    items: Vec<Option<(u64, T)>>,
 }
 
-// where we get new GenerationIDs from
-pub struct GenManager {
-    items: Vec<EntityActive>,
-    drops: Vec<usize>, // listt of all dropped entities
-}
-
-impl GenManager {
+impl<T> VecStore<T> {
     pub fn new() -> Self {
-        GenManager {
-            items: Vec::new(),
-            drops: Vec::new(),
+        VecStore { items: Vec::new() }
+    }
+}
+
+impl<T> EcsStore<T> for VecStore<T> {
+    fn add(&mut self, g: GenData, t: T) {
+        while g.pos >= self.items.len() {
+            self.items.push(None);
+        }
+        self.items[g.pos] = Some((g.gen, t));
+    }
+
+    fn get(&self, g: GenData) -> Option<&T> {
+        // get returns option, vec holding options
+        if let Some(Some((ig, d))) = self.items.get(g.pos) {
+            if *ig == g.gen {
+                return Some(d);
+            }
+        }
+        None
+    }
+
+    fn get_mut(&mut self, g: GenData) -> Option<&mut T> {
+        // get returns option, vec holding options
+        if let Some(Some((ig, d))) = self.items.get_mut(g.pos) {
+            if *ig == g.gen {
+                return Some(d);
+            }
+        }
+        None
+    }
+
+    fn drop(&mut self, g: GenData) {
+        if let Some(Some((ig, _))) = self.items.get(g.pos) {
+            if *ig == g.gen {
+                self.items[g.pos] = None
+            }
         }
     }
 
-    pub fn next(&mut self) -> GenData {
-        if let Some(loc) = self.drops.pop() {
-            // most recent drop
-            let ea = &mut self.items[loc];
-            ea.active = true;
-            ea.gen += 1;
-            return GenData {
-                pos: loc,
-                gen: ea.gen,
-            };
-        }
-        // if nothing left in drops, add on the end
-        self.items.push(EntityActive {
-            active: true,
-            gen: 0,
-        });
-        GenData {
-            gen: 0,
-            pos: self.items.len() - 1,
+    fn for_each<F: FnMut(GenData, &T)>(&self, f: &mut F) {
+        for (n, x) in self.items.iter().enumerate() {
+            if let Some((g, d)) = x {
+                f(GenData { gen: *g, pos: n }, d);
+            }
         }
     }
 
-    pub fn drop(&mut self, g: GenData) {
-        if let Some(ea) = self.items.get_mut(g.pos) {
-            if ea.active && ea.gen == g.gen {
-                // don't drop newer items than given
-                ea.active = false;
-                self.drops.push(g.pos);
+    fn for_each_mut<F: FnMut(GenData, &mut T)>(&mut self, f: &mut F) {
+        for (n, x) in self.items.iter_mut().enumerate() {
+            if let Some((g, d)) = x {
+                f(GenData { gen: *g, pos: n }, d);
             }
         }
     }
@@ -59,19 +80,24 @@ impl GenManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::gen::GenManager;
 
     #[test]
-    fn test_items_drop() {
+    fn test_store_can_drop() {
         let mut gm = GenManager::new();
-        let g = gm.next(); // 第一次生成gen为0，pos也为0
-        assert_eq!(g, GenData { gen: 0, pos: 0 });
+        let mut vs = VecStore::new();
 
-        let g2 = gm.next(); // 第二次生成gen为0，pos为1
-        assert_eq!(g2, GenData { gen: 0, pos: 1 });
-        gm.next();
-        gm.next();
-        gm.drop(g2); // 把第二次生成的放回，active置为false
-        let g3 = gm.next(); // 再生成就是直接上一次放回的g2，此时gen+1，pos为1
-        assert_eq!(g3, GenData { gen: 1, pos: 1 })
+        vs.add(gm.next(), 5);
+        vs.add(gm.next(), 3);
+        vs.add(gm.next(), 2);
+
+        let g4 = gm.next();
+        vs.add(g4, 5);
+
+        vs.for_each_mut(&mut |_, d| *d += 2);
+        assert_eq!(vs.get(g4), Some(&7));
+
+        vs.drop(g4);
+        assert_eq!(vs.get(g4), None);
     }
 }
