@@ -10,8 +10,8 @@ pub trait EcsStore<T> {
     fn drop(&mut self, g: GenData);
     // Optional but helpful could be another trait even
     //
-    fn for_each<F: FnMut(GenData, &T)>(&self, f: &mut F);
-    fn for_each_mut<F: FnMut(GenData, &mut T)>(&mut self, f: &mut F);
+    fn for_each<F: FnMut(GenData, &T)>(&self, f: F);
+    fn for_each_mut<F: FnMut(GenData, &mut T)>(&mut self, f: F);
 }
 
 pub struct VecStore<T> {
@@ -60,7 +60,7 @@ impl<T> EcsStore<T> for VecStore<T> {
         }
     }
 
-    fn for_each<F: FnMut(GenData, &T)>(&self, f: &mut F) {
+    fn for_each<F: FnMut(GenData, &T)>(&self, mut f: F) {
         for (n, x) in self.items.iter().enumerate() {
             if let Some((g, d)) = x {
                 f(GenData { gen: *g, pos: n }, d);
@@ -68,7 +68,7 @@ impl<T> EcsStore<T> for VecStore<T> {
         }
     }
 
-    fn for_each_mut<F: FnMut(GenData, &mut T)>(&mut self, f: &mut F) {
+    fn for_each_mut<F: FnMut(GenData, &mut T)>(&mut self, mut f: F) {
         for (n, x) in self.items.iter_mut().enumerate() {
             if let Some((g, d)) = x {
                 f(GenData { gen: *g, pos: n }, d);
@@ -94,7 +94,7 @@ mod tests {
         let g4 = gm.next();
         vs.add(g4, 5);
 
-        vs.for_each_mut(&mut |_, d| *d += 2);
+        vs.for_each_mut(|_, d| *d += 2);
         assert_eq!(vs.get(g4), Some(&7));
 
         vs.drop(g4);
