@@ -1,10 +1,10 @@
 mod hasher;
 
-use hasher::hash;
+pub use hasher::hash; // 同时导出hash方法
 use std::{borrow::Borrow, hash::Hash};
 
 const BSIZE: usize = 8;
-const BGROW: usize = 8;
+// const BGROW: usize = 8;
 
 #[derive(Debug)]
 pub struct BucketList<K, V> {
