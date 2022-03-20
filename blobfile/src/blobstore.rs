@@ -2,6 +2,8 @@ use std::fs::{File, OpenOptions};
 use std::io::Seek;
 use std::io::SeekFrom;
 
+use serde::Serialize;
+
 use crate::blob::{read_u64, write_u64, Blob};
 use crate::error::BlobError;
 
@@ -28,7 +30,7 @@ impl BlobStore {
             .open(fname)?;
 
         let f = &mut ff;
-        f.set_len(COUNT_SIZE + block_size * nblocks);
+        f.set_len(COUNT_SIZE + block_size * nblocks)?;
         f.seek(SeekFrom::Start(0))?;
         write_u64(f, hseed)?;
         write_u64(f, block_size)?;
@@ -86,6 +88,40 @@ impl BlobStore {
         write_u64(&mut self.file, self.elems)?;
         Ok(())
     }
+
+    // does not remove if already there
+    pub fn insert_only<K: Serialize, V: Serialize>(&mut self, k: K, v: V) -> Result<(), BlobError> {
+        let blob = Blob::from(&k, &v)?;
+        if blob.len() > self.block_size {
+            // Let the wrapper make a file with a bigger group
+            return Err(BlobError::TooBig(blob.len()));
+        }
+
+        let bucket = blob.k_hash(self.hseed) % self.nblocks;
+        let f = &mut self.file;
+        let mut pos = f.seek(SeekFrom::Start(COUNT_SIZE + self.block_size * bucket))?;
+        // start each loop at beginning of an elem
+        // remember klen == 0 means empty section
+        loop {
+            if pos >= COUNT_SIZE + self.block_size * (bucket + 1) {
+                // reached end of data block
+                // consider other handlings but this will tell the wrapper tp make space
+                // another option is to overflow onto the end of the file.
+                return Err(BlobError::NoRoom);
+            }
+            let klen = read_u64(f)?;
+            let vlen = read_u64(f)?;
+            if klen == 0 && blob.len() < vlen {
+                f.seek(SeekFrom::Start(pos))?;
+                blob.out(f)?;
+                // add pointer immediatly after data ends
+                write_u64(f, 0)?;
+                write_u64(f, (vlen - blob.len()) - 16)?;
+                return Ok(());
+            }
+            pos = f.seek(SeekFrom::Start(pos + 16 + klen + vlen))?;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -96,9 +132,12 @@ mod tests {
     pub fn test_create_file() {
         let fs = "test_data/create_file";
         std::fs::remove_file(fs).ok();
-        let mut bs = BlobStore::new(fs, 1000, 10).unwrap();
+        let bs = BlobStore::new(fs, 1000, 10).unwrap();
         let blocksize = bs.block_size;
         let mut b2 = BlobStore::open(fs).unwrap();
         assert_eq!(b2.block_size, blocksize);
+
+        b2.insert_only("fish", "so long and thanks for all teh fish")
+            .unwrap();
     }
 }
