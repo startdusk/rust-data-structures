@@ -12,6 +12,8 @@ pub enum BlobError {
     Bincode(bincode::Error),
     #[fail(display = "IO {}", 0)]
     IO(std::io::Error),
+    #[fail(display = "Failure {}", 0)]
+    Failure(failure::Error),
 }
 
 impl From<bincode::Error> for BlobError {
@@ -23,5 +25,11 @@ impl From<bincode::Error> for BlobError {
 impl From<std::io::Error> for BlobError {
     fn from(e: std::io::Error) -> Self {
         BlobError::IO(e)
+    }
+}
+
+impl From<failure::Error> for BlobError {
+    fn from(e: failure::Error) -> Self {
+        BlobError::Failure(e)
     }
 }
