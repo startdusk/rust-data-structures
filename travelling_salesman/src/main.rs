@@ -8,9 +8,7 @@ use rand::prelude::SliceRandom;
 
 #[derive(Debug)]
 #[warn(dead_code)]
-pub struct GraphErr {
-    msg: String,
-}
+pub struct GraphErr(String);
 
 pub trait Weighted {
     fn weight(&self) -> i32;
@@ -183,7 +181,7 @@ pub struct Route<ID> {
 
 impl GraphErr {
     pub fn new(s: &str) -> Self {
-        GraphErr { msg: s.to_string() }
+        GraphErr(s.to_string())
     }
 }
 
